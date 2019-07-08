@@ -1,3 +1,11 @@
 {
-    "name": "Deluxe Bar & Grill"
+    "name": "DeLuxe Bar & Grill",
+    "shortcut": "deluxe-bar-and-grill",
+    "address": "625 Broadway E",
+    "city": "Seattle",
+    "state": "WA",
+    "zipcode": "98102",
+    "lat": 0,
+    "lng": 0,
+    "phone": "(206) 324-9697"
 }

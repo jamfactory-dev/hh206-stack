@@ -9,13 +9,12 @@ const generate_place_id = name => {
 
 exports.handler = async (event, context) => {
   const dynamodb = new AWS.DynamoDB.DocumentClient();
-  console.log(event.body);
-  const place = {"name": "Deluxe Bar & Grill"}; // JSON.parse(event.body);
+  const place = event;
   const params = {
     TableName: process.env.PLACES_TABLE_NAME,
     Item: {
-      place_id: generate_place_id(place.name),
-      name: place.name,
+      place_id: generate_place_id(place.shortcut),
+      ...place
     },
     ConditionExpression: 'attribute_not_exists(place_id)',
     ReturnConsumedCapacity: 'TOTAL'
@@ -23,6 +22,7 @@ exports.handler = async (event, context) => {
 
   try {
     // Write a new item to the ItemTable
+    console.log(`Data to write: ${JSON.stringify(params.Item)}`);
     await dynamodb.put(params).promise();
     console.log(`Writing item ${params.Item.place_id} to table ${process.env.PLACES_TABLE_NAME}.`);
   } catch (error) {
