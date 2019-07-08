@@ -63,10 +63,10 @@ Resources:
             RestApiId: !Ref placesApi
       Environment:
         Variables:
-          TABLE_NAME: !Ref placeHours
-          TABLE_ARN: !GetAtt placeHours.Arn
-          TABLE_NAME_2: !Ref places
-          TABLE_ARN_2: !GetAtt places.Arn
+          PLACE_HOURS_TABLE_NAME: !Ref placeHours
+          PLACE_HOURS_TABLE_ARN: !GetAtt placeHours.Arn
+          PLACES_TABLE_NAME: !Ref places
+          PLACES_TABLE_ARN: !GetAtt places.Arn
   places:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -125,10 +125,10 @@ Resources:
             RestApiId: !Ref placesApi
       Environment:
         Variables:
-          TABLE_NAME: !Ref placeHours
-          TABLE_ARN: !GetAtt placeHours.Arn
-          TABLE_NAME_2: !Ref places
-          TABLE_ARN_2: !GetAtt places.Arn
+          PLACE_HOURS_TABLE_NAME: !Ref placeHours
+          PLACE_HOURS_TABLE_ARN: !GetAtt placeHours.Arn
+          PLACES_TABLE_NAME: !Ref places
+          PLACES_TABLE_ARN: !GetAtt places.Arn
   editPlace:
     Type: AWS::Serverless::Function
     Properties:
@@ -157,10 +157,10 @@ Resources:
             RestApiId: !Ref placesApi
       Environment:
         Variables:
-          TABLE_NAME: !Ref places
-          TABLE_ARN: !GetAtt places.Arn
-          TABLE_NAME_2: !Ref placeHours
-          TABLE_ARN_2: !GetAtt placeHours.Arn
+          PLACE_HOURS_TABLE_NAME: !Ref placeHours
+          PLACE_HOURS_TABLE_ARN: !GetAtt placeHours.Arn
+          PLACES_TABLE_NAME: !Ref places
+          PLACES_TABLE_ARN: !GetAtt places.Arn
 Parameters:
   StackTagName:
     Type: String
