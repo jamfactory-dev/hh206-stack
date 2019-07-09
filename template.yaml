@@ -125,8 +125,6 @@ Resources:
             RestApiId: !Ref placesApi
       Environment:
         Variables:
-          PLACE_HOURS_TABLE_NAME: !Ref placeHours
-          PLACE_HOURS_TABLE_ARN: !GetAtt placeHours.Arn
           PLACES_TABLE_NAME: !Ref places
           PLACES_TABLE_ARN: !GetAtt places.Arn
   editPlace:
