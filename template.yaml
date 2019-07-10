@@ -80,7 +80,10 @@ Resources:
       AttributeDefinitions:
         - AttributeName: place_id
           AttributeType: S
-      BillingMode: PAY_PER_REQUEST
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
       KeySchema:
         - AttributeName: place_id
           KeyType: HASH
@@ -95,7 +98,10 @@ Resources:
           AttributeType: S
         - AttributeName: day_hours
           AttributeType: S
-      BillingMode: PAY_PER_REQUEST
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
       KeySchema:
         - AttributeName: place_id
           KeyType: HASH
