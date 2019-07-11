@@ -3,6 +3,8 @@ const axios = require('axios');
 const h3 = require("h3-js");
 const uuidv5 = require('uuid/v5');
 
+const geocodio = require('./geocodio.js');
+
 const DEFAULT_RESOLUTION = 7;
 
 const generatePlaceId = name => {
@@ -11,7 +13,7 @@ const generatePlaceId = name => {
 
 exports.handler = async (event, context) => {
   const dynamodb = new AWS.DynamoDB.DocumentClient();
-  const place = event;
+  const place = JSON.parse(event.body);
   let item = {
     place_id: generatePlaceId(place.shortcut),
     ...place
@@ -20,19 +22,12 @@ exports.handler = async (event, context) => {
   if (!place.lat && !place.lng) {
     try {
       console.log(`No lat/lng, attempting to geocode address ${place.address}`);
-      const response = await axios.get('https://api.geocod.io/v1.3/geocode', {
-        params: {
-          api_key: 'c237c32595c2d45d7428432d2433d47ded5e3e4',
-          q: `${place.address}, ${place.city} ${place.state}`
-        }
-      });
-      if (response.status == 200 && !!response.data.results && response.data.results.length > 0) {
-        result = response.data.results[0];
-        console.log(`Found ${result.location.lat} ${result.location.lng}`);
-        item.lat = result.location.lat;
-        item.lng = result.location.lng;
+      const location = await geocodio.geocode(place);
+      if (!!location) {
+        item.lat = location.lat;
+        item.lng = location.lng;
       }
-   } catch (error) {
+    } catch (error) {
       console.log(`Error geocoding ${place.address}.`);
       throw new Error(error);
     }

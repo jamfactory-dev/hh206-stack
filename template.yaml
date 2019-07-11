@@ -23,21 +23,7 @@ Resources:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${addPlace.Arn}/invocations
-              responses: {}
-          /places/{id}:
-            put:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${editPlace.Arn}/invocations
-              responses: {}
-          /places/{id}/hours:
-            put:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${editHours.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${postPlace.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
       TracingEnabled: true
@@ -58,8 +44,6 @@ Resources:
       Policies:
         - AWSXrayWriteOnlyAccess
         - DynamoDBCrudPolicy:
-            TableName: !Ref placeHours
-        - DynamoDBCrudPolicy:
             TableName: !Ref places
       Events:
         placesApiGETplaces:
@@ -70,8 +54,6 @@ Resources:
             RestApiId: !Ref placesApi
       Environment:
         Variables:
-          PLACE_HOURS_TABLE_NAME: !Ref placeHours
-          PLACE_HOURS_TABLE_ARN: !GetAtt placeHours.Arn
           PLACES_TABLE_NAME: !Ref places
           PLACES_TABLE_ARN: !GetAtt places.Arn
   places:
@@ -90,34 +72,14 @@ Resources:
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
       TableName: !Sub ${AWS::StackName}-places
-  placeHours:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: place_id
-          AttributeType: S
-        - AttributeName: day_hours
-          AttributeType: S
-      BillingMode: PROVISIONED
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      KeySchema:
-        - AttributeName: place_id
-          KeyType: HASH
-        - AttributeName: day_hours
-          KeyType: RANGE
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-placeHours
-  addPlace:
+  postPlace:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-addPlace
+      FunctionName: !Sub ${AWS::StackName}-postPlace
       Description: !Sub
         - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
-        - ResourceName: addPlace
-      CodeUri: src/add-place
+        - ResourceName: postPlace
+      CodeUri: src/post-place
       Handler: index.handler
       Runtime: nodejs10.x
       MemorySize: 3008
@@ -125,8 +87,6 @@ Resources:
       Tracing: Active
       Policies:
         - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref placeHours
         - DynamoDBCrudPolicy:
             TableName: !Ref places
       Events:
@@ -140,70 +100,6 @@ Resources:
         Variables:
           PLACES_TABLE_NAME: !Ref places
           PLACES_TABLE_ARN: !GetAtt places.Arn
-  editPlace:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-editPlace
-      Description: !Sub
-        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
-        - ResourceName: editPlace
-      CodeUri: src/edit-place
-      Handler: index.handler
-      Runtime: nodejs10.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref places
-        - DynamoDBCrudPolicy:
-            TableName: !Ref placeHours
-      Events:
-        placesApiPUTplacesid:
-          Type: Api
-          Properties:
-            Path: /places/{id}
-            Method: PUT
-            RestApiId: !Ref placesApi
-      Environment:
-        Variables:
-          PLACE_HOURS_TABLE_NAME: !Ref placeHours
-          PLACE_HOURS_TABLE_ARN: !GetAtt placeHours.Arn
-          PLACES_TABLE_NAME: !Ref places
-          PLACES_TABLE_ARN: !GetAtt places.Arn
-  editHours:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-editHours
-      Description: !Sub
-        - Stack ${StackTagName} Environment ${EnvironmentTagName} Function ${ResourceName}
-        - ResourceName: editHours
-      CodeUri: src/edit-hours
-      Handler: index.handler
-      Runtime: nodejs10.x
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref placeHours
-        - DynamoDBCrudPolicy:
-            TableName: !Ref places
-      Events:
-        placesApiPUTplacesidhours:
-          Type: Api
-          Properties:
-            Path: /places/{id}/hours
-            Method: PUT
-            RestApiId: !Ref placesApi
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref placeHours
-          TABLE_ARN: !GetAtt placeHours.Arn
-          TABLE_NAME_2: !Ref places
-          TABLE_ARN_2: !GetAtt places.Arn
 Parameters:
   StackTagName:
     Type: String
